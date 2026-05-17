@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karwan CRM — DarGlobal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:#0f0f0f;color:#e8e0cc;min-height:100vh}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:#1a1a1a;border:0.5px solid #2e2e2e;border-radius:16px;padding:2.5rem 2rem;width:340px;text-align:center}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:1.5rem}
+.login-dot{width:10px;height:10px;background:#B8860B;border-radius:50%}
+.login-title{font-size:20px;font-weight:500;letter-spacing:0.5px}
+.login-sub{font-size:13px;color:#555;margin-bottom:1.8rem}
+.login-input{width:100%;padding:10px 14px;background:#111;border:0.5px solid #333;border-radius:8px;color:#e8e0cc;font-size:14px;font-family:inherit;margin-bottom:12px;letter-spacing:2px}
+.login-input:focus{outline:none;border-color:#B8860B}
+.login-btn{width:100%;padding:10px;background:#B8860B;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;font-family:inherit}
+.login-btn:hover{background:#9a7008}
+.login-err{font-size:12px;color:#e74c3c;margin-top:8px;display:none}
+
+/* APP */
+#app{display:none;min-height:100vh}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#141414;border-bottom:0.5px solid #2a2a2a;position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:500;letter-spacing:0.5px}
+.logo-dot{width:9px;height:9px;background:#B8860B;border-radius:50%}
+.live-dot{width:7px;height:7px;background:#27ae60;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tabs{display:flex;gap:2px;background:#1a1a1a;padding:3px;border-radius:8px;border:0.5px solid #2a2a2a}
+.tab{padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;border:none;background:transparent;color:#666;transition:all .15s;font-family:inherit}
+.tab.active{background:#222;color:#e8e0cc;border:0.5px solid #333}
+.top-right{display:flex;align-items:center;gap:8px}
+.add-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:0.5px solid #B8860B;background:transparent;color:#B8860B;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s}
+.add-btn:hover{background:#B8860B;color:#fff}
+.logout-btn{padding:7px 12px;border:0.5px solid #2a2a2a;background:transparent;color:#555;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit}
+.logout-btn:hover{color:#e8e0cc;border-color:#555}
+
+.main{padding:20px 24px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:#141414;border:0.5px solid #2a2a2a;border-radius:10px;padding:1rem;text-align:center}
+.stat-num{font-size:24px;font-weight:500;color:#B8860B;margin-bottom:2px}
+.stat-label{font-size:12px;color:#555}
+
+/* SECTIONS */
+.section{display:none}.section.active{display:block}
+
+/* PIPELINE */
+.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stage-col{background:#141414;border:0.5px solid #2a2a2a;border-radius:12px;padding:12px;min-height:300px}
+.stage-title{font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.stage-count{background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:10px;padding:1px 8px;font-size:11px;color:#666}
+.deal-card{background:#1a1a1a;border:0.5px solid #2a2a2a;border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.deal-card:hover{border-color:#B8860B}
+.deal-name{font-size:13px;font-weight:500;color:#e8e0cc;margin-bottom:3px}
+.deal-val{font-size:12px;color:#B8860B;font-weight:500}
+.deal-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.dtag{font-size:10px;padding:2px 7px;border-radius:8px;background:#222;color:#666;border:0.5px solid #2a2a2a}
+.dtag.hot{background:#2d1010;color:#e74c3c;border-color:#5a1a1a}
+.dtag.warm{background:#2d1a00;color:#e67e22;border-color:#5a3a10}
+.dtag.gold{background:#2a2000;color:#B8860B;border-color:#4a3800}
+.empty-col{text-align:center;color:#333;font-size:12px;padding:2rem 0}
+
+/* CLIENTS */
+.search-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.search-bar input{flex:1;min-width:150px;padding:8px 12px;background:#141414;border:0.5px solid #2a2a2a;border-radius:8px;color:#e8e0cc;font-size:13px;font-family:inherit}
+.search-bar input:focus{outline:none;border-color:#B8860B}
+.fsel{padding:8px 10px;background:#141414;border:0.5px solid #2a2a2a;border-radius:8px;color:#e8e0cc;font-size:13px;font-family:inherit}
+.fsel:focus{outline:none;border-color:#B8860B}
+.clients-table{width:100%;border-collapse:collapse;font-size:13px}
+.clients-table th{text-align:left;padding:8px 12px;font-size:11px;color:#444;border-bottom:0.5px solid #1e1e1e;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.clients-table td{padding:10px 12px;border-bottom:0.5px solid #1a1a1a;vertical-align:middle;color:#c8c0b0}
+.clients-table tr:hover td{background:#161616;cursor:pointer}
+.av{width:32px;height:32px;border-radius:50%;background:#1a2535;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#5b9bd5;flex-shrink:0}
+.pill{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;font-weight:500}
+.p-new{background:#0d1a2d;color:#5b9bd5}
+.p-hot{background:#2d0d0d;color:#e74c3c}
+.p-warm{background:#2d1a00;color:#e67e22}
+.p-closed{background:#0d2010;color:#27ae60}
+.mkt-tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#1e1e1e;color:#666;border:0.5px solid #2a2a2a}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sp-card{background:#141414;border:0.5px solid #2a2a2a;border-radius:12px;padding:1.2rem;text-align:center}
+.sp-av{width:50px;height:50px;border-radius:50%;background:#1a2535;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:500;color:#5b9bd5;margin-bottom:8px}
+.sp-name{font-size:14px;font-weight:500;color:#e8e0cc;margin-bottom:2px}
+.sp-role{font-size:12px;color:#444;margin-bottom:12px}
+.sp-stats{display:flex;justify-content:center;gap:20px}
+.sp-stat strong{display:block;font-size:18px;font-weight:500;color:#B8860B}
+.sp-stat span{font-size:11px;color:#444}
+
+/* WEBSITE */
+.snippet-wrap{background:#141414;border:0.5px solid #2a2a2a;border-radius:10px;padding:1rem;margin-top:12px}
+.snippet-wrap pre{font-family:'Courier New',monospace;font-size:11px;color:#666;white-space:pre-wrap;word-break:break-all;margin-bottom:10px;line-height:1.6}
+.copy-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:0.5px solid #2a2a2a;background:transparent;color:#666;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.copy-btn:hover{border-color:#B8860B;color:#B8860B}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#1a1a1a;border:0.5px solid #2e2e2e;border-radius:14px;padding:1.8rem;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative}
+.modal h3{font-size:16px;font-weight:500;color:#e8e0cc;margin-bottom:1.4rem}
+.close-x{position:absolute;top:14px;right:16px;background:none;border:none;color:#444;font-size:20px;cursor:pointer;line-height:1}
+.close-x:hover{color:#e8e0cc}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr{margin-bottom:12px}
+.fr label{display:block;font-size:11px;color:#444;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.fr input,.fr select,.fr textarea{width:100%;padding:8px 10px;background:#111;border:0.5px solid #2a2a2a;border-radius:8px;color:#e8e0cc;font-size:13px;font-family:inherit}
+.fr input:focus,.fr select:focus,.fr textarea:focus{outline:none;border-color:#B8860B}
+.fr textarea{min-height:64px;resize:vertical}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.2rem}
+.btn-cancel{padding:8px 16px;border:0.5px solid #2a2a2a;background:transparent;color:#555;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-cancel:hover{color:#e8e0cc}
+.btn-save{padding:8px 18px;border:none;background:#B8860B;color:#fff;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-save:hover{background:#9a7008}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+
+/* DETAIL */
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid #1e1e1e;font-size:13px;gap:12px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:#444;font-size:12px;flex-shrink:0}
+.detail-val{color:#e8e0cc;text-align:right;word-break:break-word}
+.del-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:0.5px solid #3a1010;background:transparent;color:#e74c3c;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit}
+.del-btn:hover{background:#2d0d0d}
+.edit-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:0.5px solid #B8860B;background:transparent;color:#B8860B;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit}
+.edit-btn:hover{background:#B8860B;color:#fff}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e1e1e;border:0.5px solid #2a2a2a;border-radius:8px;padding:10px 16px;font-size:13px;color:#e8e0cc;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* LOADING */
+.loading{text-align:center;padding:3rem;color:#444;font-size:13px}
+
+@media(max-width:700px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .pipeline{grid-template-columns:1fr 1fr}
+  .team-grid{grid-template-columns:1fr 1fr}
+  .form-2{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .pipeline{grid-template-columns:1fr}
+  .team-grid{grid-template-columns:1fr}
+  .main{padding:12px}
+  .top-bar{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><div class="login-dot"></div><span class="login-title">Karwan CRM</span></div>
+    <p class="login-sub">DarGlobal Sales Portal</p>
+    <input class="login-input" type="password" id="pw-input" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-err" id="login-err">Wrong password. Try again.</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="top-bar">
+    <div class="logo">
+      <div class="login-dot"></div>
+      Karwan CRM
+      <div class="live-dot" title="Live database"></div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('pipeline')">Pipeline</button>
+      <button class="tab" onclick="switchTab('clients')">Clients</button>
+      <button class="tab" onclick="switchTab('team')">Team</button>
+      <button class="tab" onclick="switchTab('website')">Website</button>
+    </div>
+    <div class="top-right">
+      <button class="add-btn" onclick="openAddModal()">+ Add Client</button>
+      <button class="logout-btn" onclick="manualRefresh()" title="Refresh data">&#8635; Sync</button>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-label">Total Clients</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-hot">—</div><div class="stat-label">Hot Leads</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-value">—</div><div class="stat-label">Pipeline Value</div></div>
+      <div class="stat-card"><div class="stat-num" id="s-closed">—</div><div class="stat-label">Deals Closed</div></div>
+    </div>
+
+    <div class="section active" id="tab-pipeline"><div class="pipeline" id="pipeline-board"><div class="loading">Loading pipeline...</div></div></div>
+
+    <div class="section" id="tab-clients">
+      <div class="search-bar">
+        <input type="text" id="search-q" placeholder="Search name, phone, email..." oninput="renderClients()">
+        <select class="fsel" id="f-st" onchange="renderClients()"><option value="">All Status</option><option>New</option><option>Warm</option><option>Hot</option><option>Closed</option></select>
+        <select class="fsel" id="f-mk" onchange="renderClients()"><option value="">All Markets</option><option>Iraq</option><option>GCC</option><option>Europe</option><option>Oman</option></select>
+        <select class="fsel" id="f-as" onchange="renderClients()"><option value="">All Team</option><option>Karwan</option><option>Alan</option></select>
+      </div>
+      <table class="clients-table">
+        <thead><tr><th>Client</th><th>Market</th><th>Project</th><th>Budget</th><th>Status</th><th>Assigned</th><th>Source</th><th>Date</th></tr></thead>
+        <tbody id="clients-tbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="section" id="tab-team"><div class="team-grid" id="team-grid"></div></div>
+
+    <div class="section" id="tab-website">
+      <div style="max-width:580px">
+        <p style="font-size:13px;color:#555;margin-bottom:6px">Paste this form on your website. Submissions go directly into your live CRM database.</p>
+        <div class="snippet-wrap">
+          <pre id="html-snippet">&lt;form id="crm-form" style="font-family:sans-serif;max-width:400px;display:flex;flex-direction:column;gap:10px"&gt;
+  &lt;input name="name" placeholder="Full Name *" required style="padding:10px;border:1px solid #ddd;border-radius:6px" /&gt;
+  &lt;input name="phone" placeholder="Phone / WhatsApp" style="padding:10px;border:1px solid #ddd;border-radius:6px" /&gt;
+  &lt;input name="email" type="email" placeholder="Email" style="padding:10px;border:1px solid #ddd;border-radius:6px" /&gt;
+  &lt;select name="market" style="padding:10px;border:1px solid #ddd;border-radius:6px"&gt;
+    &lt;option&gt;Iraq&lt;/option&gt;&lt;option&gt;GCC&lt;/option&gt;
+    &lt;option&gt;Europe&lt;/option&gt;&lt;option&gt;Oman&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;select name="project" style="padding:10px;border:1px solid #ddd;border-radius:6px"&gt;
+    &lt;option&gt;Aida&lt;/option&gt;&lt;option&gt;Other DarGlobal&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;textarea name="notes" placeholder="Message / Questions" rows="3" style="padding:10px;border:1px solid #ddd;border-radius:6px"&gt;&lt;/textarea&gt;
+  &lt;button type="submit" style="padding:12px;background:#B8860B;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer"&gt;Request Info&lt;/button&gt;
+&lt;/form&gt;
+&lt;script&gt;
+document.getElementById('crm-form').onsubmit = async function(e){
+  e.preventDefault();
+  var d = Object.fromEntries(new FormData(e.target));
+  await fetch('https://qmzqpkblvqsqvznwibxu.supabase.co/rest/v1/clients',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':'sb_publishable_TQIOPaYYoGfCn-WoBYMx2w_TpFsa2pJ','Authorization':'Bearer sb_publishable_TQIOPaYYoGfCn-WoBYMx2w_TpFsa2pJ'},
+    body:JSON.stringify({name:d.name,phone:d.phone,email:d.email,market:d.market,project:d.project,notes:d.notes,status:'New',assign:'Unassigned',source:'Website',date:new Date().toISOString().slice(0,10)})
+  });
+  alert('Thank you! We will be in touch soon.');
+  e.target.reset();
+};
+&lt;/script&gt;</pre>
+          <button class="copy-btn" onclick="copyEl('html-snippet')">&#128203; Copy website form</button>
+        </div>
+        <div class="snippet-wrap" style="margin-top:12px">
+          <p style="font-size:12px;color:#444;margin-bottom:8px">WhatsApp click-to-chat link:</p>
+          <pre id="wa-snippet">https://wa.me/968XXXXXXXX?text=I%20saw%20the%20Aida%20project%20and%20I%27m%20interested</pre>
+          <button class="copy-btn" onclick="copyEl('wa-snippet')">&#128203; Copy WhatsApp link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <button class="close-x" onclick="closeAddModal()">&#215;</button>
+    <h3 id="modal-title">Add New Client</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-2">
+      <div class="fr"><label>Full Name *</label><input id="f-name" placeholder="Ahmed Al-Rashid"></div>
+      <div class="fr"><label>Phone / WhatsApp</label><input id="f-phone" placeholder="+964..."></div>
+    </div>
+    <div class="form-2">
+      <div class="fr"><label>Email</label><input id="f-email" type="email" placeholder="email@..."></div>
+      <div class="fr"><label>Market</label>
+        <select id="f-market"><option>Iraq</option><option>GCC</option><option>Europe</option><option>Oman</option><option>Other</option></select>
+      </div>
+    </div>
+    <div class="form-2">
+      <div class="fr"><label>Project</label>
+        <select id="f-project"><option>Aida</option><option>Other DarGlobal</option><option>Not specified</option></select>
+      </div>
+      <div class="fr"><label>Budget (USD)</label><input id="f-budget" type="number" placeholder="500000"></div>
+    </div>
+    <div class="form-2">
+      <div class="fr"><label>Status</label>
+        <select id="f-status"><option>New</option><option>Warm</option><option>Hot</option><option>Closed</option></select>
+      </div>
+      <div class="fr"><label>Assigned To</label>
+        <select id="f-assign"><option>Karwan</option><option>Alan</option><option>Unassigned</option></select>
+      </div>
+    </div>
+    <div class="fr"><label>Source</label>
+      <select id="f-source"><option>Instagram</option><option>Facebook</option><option>WhatsApp</option><option>Website</option><option>Referral</option><option>Walk-in</option><option>Other</option></select>
+    </div>
+    <div class="fr"><label>Notes</label><textarea id="f-notes" placeholder="Details about this lead..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" id="save-btn" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <button class="close-x" onclick="closeDetail()">&#215;</button>
+    <h3 id="detail-name" style="margin-bottom:1rem;color:#B8860B"></h3>
+    <div id="detail-body"></div>
+    <div class="modal-actions" style="margin-top:1rem">
+      <button class="del-btn" onclick="deleteClient()">&#128465; Delete</button>
+      <button class="edit-btn" onclick="editFromDetail()">&#9998; Edit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var PASSWORD = 'realdeal2026';
+var SB_URL = 'https://qmzqpkblvqsqvznwibxu.supabase.co';
+var SB_KEY = 'sb_publishable_TQIOPaYYoGfCn-WoBYMx2w_TpFsa2pJ';
+var clients = [];
+var currentDetailId = null;
+var refreshInterval = null;
+
+// --- AUTH ---
+function doLogin(){
+  if(document.getElementById('pw-input').value === PASSWORD){
+    sessionStorage.setItem('crm_auth','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+function doLogout(){
+  clearInterval(refreshInterval);
+  sessionStorage.removeItem('crm_auth');
+  location.reload();
+}
+
+// --- SUPABASE API ---
+async function sbFetch(path, opts){
+  var res = await fetch(SB_URL+path, Object.assign({
+    cache: 'no-store',
+    headers:{
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer '+SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    }
+  }, opts||{}));
+  if(!res.ok){
+    var err = await res.text();
+    throw new Error(err);
+  }
+  var text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function fetchClients(){
+  var data = await sbFetch('/rest/v1/clients?select=*&order=created_at.desc');
+  return data || [];
+}
+
+async function insertClient(obj){
+  return await sbFetch('/rest/v1/clients', {method:'POST', body:JSON.stringify(obj)});
+}
+
+async function updateClient(id, obj){
+  return await sbFetch('/rest/v1/clients?id=eq.'+id, {method:'PATCH', body:JSON.stringify(obj)});
+}
+
+async function deleteClientDB(id){
+  await sbFetch('/rest/v1/clients?id=eq.'+id, {method:'DELETE'});
+}
+
+// --- INIT ---
+async function initApp(){
+  try {
+    clients = await fetchClients();
+    refresh();
+    // Auto-refresh every 5 seconds for live updates
+    refreshInterval = setInterval(async function(){
+      clients = await fetchClients();
+      refresh();
+    }, 5000);
+  } catch(e){
+    showToast('Connection error: '+e.message);
+  }
+}
+
+function refresh(){
+  updateStats();
+  var activeTab = document.querySelector('.section.active');
+  if(activeTab){
+    var id = activeTab.id.replace('tab-','');
+    if(id==='pipeline') renderPipeline();
+    if(id==='clients') renderClients();
+    if(id==='team') renderTeam();
+  }
+}
+
+// --- STATS ---
+function updateStats(){
+  document.getElementById('s-total').textContent = clients.length;
+  document.getElementById('s-hot').textContent = clients.filter(function(c){return c.status==='Hot'}).length;
+  var val = clients.reduce(function(a,c){return a+(c.budget||0)},0);
+  document.getElementById('s-value').textContent = '$'+val.toLocaleString();
+  document.getElementById('s-closed').textContent = clients.filter(function(c){return c.status==='Closed'}).length;
+}
+
+// --- PIPELINE ---
+function renderPipeline(){
+  var board = document.getElementById('pipeline-board');
+  board.innerHTML='';
+  ['New','Warm','Hot','Closed'].forEach(function(stage){
+    var group = clients.filter(function(c){return c.status===stage});
+    var col = document.createElement('div'); col.className='stage-col';
+    col.innerHTML='<div class="stage-title">'+stage+'<span class="stage-count">'+group.length+'</span></div>';
+    if(!group.length){ col.innerHTML+='<div class="empty-col">No leads</div>'; }
+    group.forEach(function(c){
+      var card = document.createElement('div'); card.className='deal-card';
+      card.innerHTML='<div class="deal-name">'+esc(c.name)+'</div>'
+        +'<div class="deal-val">$'+Number(c.budget||0).toLocaleString()+'</div>'
+        +'<div class="deal-tags">'
+        +'<span class="dtag '+(stage==='Hot'?'hot':stage==='Warm'?'warm':'')+'">'+stage+'</span>'
+        +'<span class="dtag">'+esc(c.market||'')+'</span>'
+        +'<span class="dtag gold">'+esc(c.assign||'')+'</span>'
+        +'</div>';
+      card.onclick=function(){ openDetail(c.id); };
+      col.appendChild(card);
+    });
+    board.appendChild(col);
+  });
+}
+
+// --- CLIENTS TABLE ---
+var pillClass={New:'p-new',Hot:'p-hot',Warm:'p-warm',Closed:'p-closed'};
+function renderClients(){
+  var q=(document.getElementById('search-q').value||'').toLowerCase();
+  var fs=document.getElementById('f-st').value;
+  var fm=document.getElementById('f-mk').value;
+  var fa=document.getElementById('f-as').value;
+  var tbody=document.getElementById('clients-tbody');
+  tbody.innerHTML='';
+  var list=clients.filter(function(c){
+    if(q&&!c.name.toLowerCase().includes(q)&&!(c.phone||'').includes(q)&&!(c.email||'').toLowerCase().includes(q)) return false;
+    if(fs&&c.status!==fs) return false;
+    if(fm&&c.market!==fm) return false;
+    if(fa&&c.assign!==fa) return false;
+    return true;
+  });
+  if(!list.length){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#333;font-size:13px">No clients found</td></tr>';
+    return;
+  }
+  list.forEach(function(c){
+    var av=c.name.split(' ').map(function(w){return w[0]||''}).slice(0,2).join('').toUpperCase();
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><div style="display:flex;align-items:center;gap:10px"><div class="av">'+esc(av)+'</div>'
+      +'<div><div style="font-weight:500;font-size:13px;color:#e8e0cc">'+esc(c.name)+'</div>'
+      +'<div style="font-size:11px;color:#444">'+esc(c.phone||'')+'</div></div></div></td>'
+      +'<td><span class="mkt-tag">'+esc(c.market||'')+'</span></td>'
+      +'<td style="color:#666">'+esc(c.project||'')+'</td>'
+      +'<td style="color:#B8860B;font-weight:500">$'+Number(c.budget||0).toLocaleString()+'</td>'
+      +'<td><span class="pill '+(pillClass[c.status]||'p-new')+'">'+esc(c.status||'')+'</span></td>'
+      +'<td style="color:#666">'+esc(c.assign||'')+'</td>'
+      +'<td style="color:#444">'+esc(c.source||'')+'</td>'
+      +'<td style="color:#333;font-size:12px">'+esc(c.date||'')+'</td>';
+    tr.onclick=function(){ openDetail(c.id); };
+    tbody.appendChild(tr);
+  });
+}
+
+// --- TEAM ---
+function renderTeam(){
+  var grid=document.getElementById('team-grid');
+  grid.innerHTML='';
+  ['Karwan','Alan'].forEach(function(m){
+    var mine=clients.filter(function(c){return c.assign===m});
+    var hot=mine.filter(function(c){return c.status==='Hot'}).length;
+    var closed=mine.filter(function(c){return c.status==='Closed'}).length;
+    var val=mine.reduce(function(a,c){return a+(c.budget||0)},0);
+    var card=document.createElement('div'); card.className='sp-card';
+    card.innerHTML='<div class="sp-av">'+m.slice(0,2).toUpperCase()+'</div>'
+      +'<div class="sp-name">'+m+'</div>'
+      +'<div class="sp-role">'+(m==='Karwan'?'Sales Manager':'Sales Agent')+'</div>'
+      +'<div class="sp-stats">'
+      +'<div class="sp-stat"><strong>'+mine.length+'</strong><span>Clients</span></div>'
+      +'<div class="sp-stat"><strong>'+hot+'</strong><span>Hot</span></div>'
+      +'<div class="sp-stat"><strong>'+closed+'</strong><span>Closed</span></div>'
+      +'</div>'
+      +'<div style="margin-top:10px;font-size:12px;color:#B8860B">$'+val.toLocaleString()+' pipeline</div>';
+    grid.appendChild(card);
+  });
+}
+
+// --- DETAIL ---
+function openDetail(id){
+  var c=clients.find(function(x){return x.id===id});
+  if(!c) return;
+  currentDetailId=id;
+  document.getElementById('detail-name').textContent=c.name;
+  var rows=[
+    ['Phone',c.phone||'—'],['Email',c.email||'—'],['Market',c.market||'—'],
+    ['Project',c.project||'—'],['Budget','$'+Number(c.budget||0).toLocaleString()],
+    ['Status',c.status||'—'],['Assigned To',c.assign||'—'],['Source',c.source||'—'],
+    ['Date Added',c.date||'—'],['Notes',c.notes||'—']
+  ];
+  document.getElementById('detail-body').innerHTML=rows.map(function(r){
+    return '<div class="detail-row"><span class="detail-label">'+esc(r[0])+'</span><span class="detail-val">'+esc(r[1])+'</span></div>';
+  }).join('');
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeDetail(){ document.getElementById('detail-modal').classList.remove('open'); currentDetailId=null; }
+
+async function deleteClient(){
+  if(!currentDetailId) return;
+  if(!confirm('Delete this client? Cannot be undone.')) return;
+  try{
+    await deleteClientDB(currentDetailId);
+    clients=clients.filter(function(c){return c.id!==currentDetailId});
+    closeDetail(); refresh(); showToast('Client deleted');
+  }catch(e){ showToast('Error: '+e.message); }
+}
+
+function editFromDetail(){
+  var c=clients.find(function(x){return x.id===currentDetailId});
+  if(!c) return;
+  closeDetail(); openAddModal(c);
+}
+
+// --- ADD/EDIT MODAL ---
+function openAddModal(c){
+  document.getElementById('modal-title').textContent=c?'Edit Client':'Add New Client';
+  document.getElementById('edit-id').value=c?c.id:'';
+  document.getElementById('f-name').value=c?c.name:'';
+  document.getElementById('f-phone').value=c?(c.phone||''):'';
+  document.getElementById('f-email').value=c?(c.email||''):'';
+  setSelect('f-market',c?c.market:'Iraq');
+  setSelect('f-project',c?c.project:'Aida');
+  document.getElementById('f-budget').value=c?(c.budget||''):'';
+  setSelect('f-status',c?c.status:'New');
+  setSelect('f-assign',c?c.assign:'Karwan');
+  setSelect('f-source',c?c.source:'Instagram');
+  document.getElementById('f-notes').value=c?(c.notes||''):'';
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeAddModal(){ document.getElementById('add-modal').classList.remove('open'); }
+function setSelect(id,val){
+  var el=document.getElementById(id);
+  for(var i=0;i<el.options.length;i++){
+    if(el.options[i].value===val||el.options[i].text===val){ el.selectedIndex=i; break; }
+  }
+}
+
+async function saveClient(){
+  var name=document.getElementById('f-name').value.trim();
+  if(!name){ alert('Please enter a client name.'); return; }
+  var btn=document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='Saving...';
+  var eid=document.getElementById('edit-id').value;
+  var obj={
+    name:name,
+    phone:document.getElementById('f-phone').value.trim(),
+    email:document.getElementById('f-email').value.trim(),
+    market:document.getElementById('f-market').value,
+    project:document.getElementById('f-project').value,
+    budget:parseInt(document.getElementById('f-budget').value)||0,
+    status:document.getElementById('f-status').value,
+    assign:document.getElementById('f-assign').value,
+    source:document.getElementById('f-source').value,
+    notes:document.getElementById('f-notes').value.trim(),
+    date:new Date().toISOString().slice(0,10)
+  };
+  try{
+    if(eid){
+      await updateClient(eid, obj);
+      showToast('Client updated');
+    } else {
+      await insertClient(obj);
+      showToast('Client added');
+    }
+    clients=await fetchClients();
+    closeAddModal(); refresh();
+  }catch(e){
+    showToast('Error: '+e.message);
+  }
+  btn.disabled=false; btn.textContent='Save Client';
+}
+
+// --- TABS ---
+function switchTab(t){
+  ['pipeline','clients','team','website'].forEach(function(n,i){
+    document.querySelectorAll('.tab')[i].classList.toggle('active',n===t);
+  });
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='pipeline') renderPipeline();
+  if(t==='clients') renderClients();
+  if(t==='team') renderTeam();
+}
+
+// --- UTILS ---
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function copyEl(id){
+  navigator.clipboard.writeText(document.getElementById(id).textContent)
+    .then(function(){ showToast('Copied!'); })
+    .catch(function(){ showToast('Select text manually to copy'); });
+}
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },3000);
+}
+
+async function manualRefresh(){
+  clients = await fetchClients();
+  refresh();
+  showToast('Synced ✓');
+}
+// --- START ---
+if(sessionStorage.getItem('crm_auth')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+</script>
+</body>
+</html>
